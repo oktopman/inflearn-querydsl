@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/querydsl-study
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create # create-drop
+    properties:
+      hibernate:
+        format_sql: true
+#        show_sql: true
+
+logging.level:
+  org.hibernate.SQL: debug
+  org.hibernate.type: trace # hibernate sql 의 바인딩값을 볼 수 있음
