@@ -2,12 +2,11 @@ package com.inflearn.querydslstudy;
 
 import com.inflearn.querydslstudy.entity.Member;
 import com.inflearn.querydslstudy.entity.QMember;
+import com.inflearn.querydslstudy.entity.QTeam;
 import com.inflearn.querydslstudy.entity.Team;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import jdk.nashorn.internal.objects.annotations.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 import static com.inflearn.querydslstudy.entity.QMember.member;
+import static com.inflearn.querydslstudy.entity.QTeam.team;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -147,7 +147,50 @@ public class QuerydslBasicTest {
         Tuple tuple = result.get(0);
         assertThat(tuple.get(member.count())).isEqualTo(4);
         assertThat(tuple.get(member.age.sum())).isEqualTo(100);
+        assertThat(tuple.get(member.age.avg())).isEqualTo(25);
+        assertThat(tuple.get(member.age.max())).isEqualTo(40);
+        assertThat(tuple.get(member.age.min())).isEqualTo(10);
 
+    }
+
+    /**
+     * 팀의 이름과 각 팀의 평균 연령을 구해라.
+     */
+    @Test
+    void group() {
+        List<Tuple> result = queryFactory
+                .select(team.name, member.age.avg())
+                .from(member)
+                .leftJoin(member.team, team)
+                .groupBy(team.name)
+                .fetch();
+
+        Tuple tuple1 = result.get(0);
+        Tuple tuple2 = result.get(1);
+        assertThat(tuple1.get(team.name)).isEqualTo("teamA");
+        assertThat(tuple1.get(member.age.avg())).isEqualTo(15);
+
+        assertThat(tuple2.get(team.name)).isEqualTo("teamB");
+        assertThat(tuple2.get(member.age.avg())).isEqualTo(35);
+
+    }
+
+    /*
+    * teamA에 소속된 모든 회원
+    * */
+    @Test
+    void join() {
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .join(member.team, team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        Member member1 = members.get(0);
+        Member member2 = members.get(1);
+        assertThat(members.size()).isEqualTo(2);
+        assertThat(member1.getAge()).isEqualTo(10);
+        assertThat(member2.getAge()).isEqualTo(20);
     }
 
 }
