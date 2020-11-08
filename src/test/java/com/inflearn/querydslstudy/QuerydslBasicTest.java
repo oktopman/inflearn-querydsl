@@ -2,7 +2,6 @@ package com.inflearn.querydslstudy;
 
 import com.inflearn.querydslstudy.entity.Member;
 import com.inflearn.querydslstudy.entity.QMember;
-import com.inflearn.querydslstudy.entity.QTeam;
 import com.inflearn.querydslstudy.entity.Team;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
@@ -176,8 +175,8 @@ public class QuerydslBasicTest {
     }
 
     /*
-    * teamA에 소속된 모든 회원
-    * */
+     * teamA에 소속된 모든 회원
+     * */
     @Test
     void join() {
         List<Member> members = queryFactory
@@ -191,6 +190,58 @@ public class QuerydslBasicTest {
         assertThat(members.size()).isEqualTo(2);
         assertThat(member1.getAge()).isEqualTo(10);
         assertThat(member2.getAge()).isEqualTo(20);
+    }
+
+    /*
+     * 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+     * */
+    @Test
+    void join_on_filtering() {
+        List<Tuple> members = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(member.team.name.eq("teamA"))
+//                .where(member.team.name.eq("teamA"))
+                .fetch();
+
+        for (Tuple tuple : members) {
+            System.out.println(tuple);
+        }
+    }
+
+    /*
+     * 연관관계가 없는 엔티티 외부 조인
+     * 회원의 이름이 팀 이름과 같은 대상 외부 조인
+     * */
+    @Test
+    void join_on_no_relation() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+        List<Tuple> tuples = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(member.username.eq(team.name)) // 일반조인과 다르게 id를 매칭 하지않가서 on절에 있는 조건으로만 조건을 검. member.team_id = team.id 조건을 만들지않으
+                .fetch();
+
+        tuples
+                .forEach(System.out::println);
+    }
+
+    @Test
+    void fetch_join_no() {
+        queryFactory
+                .selectFrom(member)
+                .join(member.team, team)
+                .fetch();
+    }
+
+    @Test
+    void fetch_join_use() {
+        queryFactory
+                .selectFrom(member)
+                .join(member.team, team).fetchJoin()
+                .fetch();
     }
 
 }

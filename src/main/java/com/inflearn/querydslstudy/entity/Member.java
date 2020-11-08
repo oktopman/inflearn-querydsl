@@ -1,9 +1,6 @@
 package com.inflearn.querydslstudy.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,6 +8,7 @@ import javax.persistence.*;
 @Getter @Setter
 @Entity
 @Table(name = "member")
+@ToString(of = {"id", "username", "age"})
 public class Member {
 
     @Id
