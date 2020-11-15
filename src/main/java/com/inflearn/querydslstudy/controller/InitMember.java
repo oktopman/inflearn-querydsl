@@ -17,9 +17,10 @@ import javax.transaction.Transactional;
 public class InitMember {
 
     private final InitMemberService initMemberService;
+
     @PostConstruct
     public void init() {
-        initMemberService.init();;
+        initMemberService.init();
     }
 
     @Component
