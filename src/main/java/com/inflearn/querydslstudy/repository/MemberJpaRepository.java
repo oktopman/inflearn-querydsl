@@ -7,7 +7,6 @@ import com.inflearn.querydslstudy.entity.Member;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -77,7 +76,7 @@ public class MemberJpaRepository {
                         teamNameCondition(condition.getTeamName()),
                         ageGoeCondition(condition.getAgeGoe()),
                         ageloeCondition(condition.getAgeLoe())
-                        )
+                )
                 .fetch();
     }
 
